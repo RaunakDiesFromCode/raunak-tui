@@ -144,7 +144,20 @@ fn draw_projects(f: &mut Frame, area: Rect, app: &App) {
     } else {
         app.projects
             .iter()
-            .map(|repo| format!("- {}", repo.name))
+            .enumerate()
+            .map(|(i, repo)| {
+                let desc = repo
+                    .description
+                    .as_deref()
+                    .unwrap_or("No description provided.");
+
+                format!(
+                    "({}) {}\n{}\n",
+                    i + 1,
+                    repo.name,
+                    desc
+                )
+            })
             .collect::<Vec<_>>()
             .join("\n")
     };
@@ -156,6 +169,7 @@ fn draw_projects(f: &mut Frame, area: Rect, app: &App) {
 
     f.render_widget(body, area);
 }
+
 
 
 

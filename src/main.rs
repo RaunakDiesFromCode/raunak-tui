@@ -4,15 +4,15 @@ mod github;
 
 use std::io;
 use std::time::Duration;
-use std::sync::{Arc, Mutex};
+use std::sync::{ Arc, Mutex };
 
 use crossterm::{
     execute,
-    event::{self, Event, KeyCode},
-    terminal::{enable_raw_mode, disable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    event::{ self, Event, KeyCode },
+    terminal::{ enable_raw_mode, disable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen },
 };
 
-use ratatui::{Terminal, backend::CrosstermBackend};
+use ratatui::{ Terminal, backend::CrosstermBackend };
 use open;
 
 use app::App;
@@ -70,9 +70,8 @@ async fn main() -> Result<(), io::Error> {
 
 fn run_app<B: ratatui::backend::Backend>(
     terminal: &mut Terminal<B>,
-    app: Arc<Mutex<App>>,
+    app: Arc<Mutex<App>>
 ) -> io::Result<()> {
-
     loop {
         // ---- quit check ----
         {
@@ -127,6 +126,24 @@ fn run_app<B: ratatui::backend::Backend>(
                         let _ = open::that(
                             "mailto:raunakmanna43@gmail.com?subject=I%20saw%20your%20portfolio"
                         );
+                    }
+
+                    // ----- project selection -----
+                    KeyCode::Char(c) if c.is_ascii_digit() => {
+                        let index = c.to_digit(10).unwrap() as usize;
+
+                        if index == 0 {
+                            return Ok(()); // ignore 0
+                        }
+
+                        let repo_opt = {
+                            let app = app.lock().unwrap();
+                            app.projects.get(index - 1).cloned()
+                        };
+
+                        if let Some(repo) = repo_opt {
+                            let _ = open::that(repo.html_url);
+                        }
                     }
 
                     _ => {}

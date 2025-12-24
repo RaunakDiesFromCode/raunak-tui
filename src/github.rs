@@ -13,10 +13,8 @@ pub struct RepoOwner {
 #[derive(Deserialize, Clone)]
 pub struct Repo {
     pub name: String,
-
-    #[allow(dead_code)]
     pub html_url: String,
-
+    pub description: Option<String>, // 👈 NEW
     pub owner: RepoOwner,
 }
 
