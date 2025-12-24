@@ -39,7 +39,7 @@ async fn main() -> Result<(), io::Error> {
             app.start_loading_projects();
         }
 
-        match github::fetch_starred_owned_repos().await {
+        match github::fetch_repos().await {
             Ok(projects) => {
                 let mut app = app_clone.lock().unwrap();
                 app.set_projects(projects);
