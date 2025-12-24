@@ -6,13 +6,16 @@ use ratatui::{
     style::{ Style, Color },
 };
 
+use ratatui::widgets::Wrap;
+
 use crate::app::{ App, Screen };
 
 /* ---------- STYLE ---------- */
 
 const BASE_STYLE: Style = Style::new().fg(Color::White);
 const HIGHLIGHT_STYLE: Style = Style::new().bg(Color::DarkGray).fg(Color::White);
-const PSYDUCK_ASCII: &str = r#"
+const PSYDUCK_ASCII: &str =
+    r#"
 ⠀⠀⠀⠀⠀⠀⠀⠀⣤⡀⠀⣶⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠙⣿⣆⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠸⣷⣮⣿⣿⣄⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -31,7 +34,6 @@ const PSYDUCK_ASCII: &str = r#"
 ⠀⠀⠀⠰⠥⠤⢄⢀⡠⠄⡈⡀⠀⠀⣇⣀⠠⢄⠀⠒⠤⠣⠀
 ⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀
 "#;
-
 
 /* ---------- HELPERS ---------- */
 
@@ -93,34 +95,31 @@ fn draw_body(f: &mut Frame, area: Rect, app: &App) {
     }
 }
 
-
 fn draw_home(f: &mut Frame, area: Rect) {
     let chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([
             Constraint::Percentage(55), // left text
-            Constraint::Percentage(45), // right image
+            Constraint::Percentage(45), // right ascii
         ])
         .split(area);
 
     // ---------- LEFT PANEL ----------
     let left_text =
-"
-
-I am Raunak
+        "I am Raunak
 I make the web beautiful
 
 Based in India, I am a web developer who loves to create beautiful and responsive websites.
-I have been working in the field for over 2 years and have worked with a variety of
-technologies including ReactJS, NextJS, NodeJS, and more.
-
-I am passionate about creating beautiful and responsive websites that are easy to use
-and look great on all devices. I am always looking for new opportunities to learn and
-grow as a developer and am excited to see where my career takes me.";
+I have been working in the field for over 2 years and have worked with a variety of technologies
+including ReactJS, NextJS, NodeJS, and more. I am passionate about creating beautiful and
+responsive websites that are easy to use and look great on all devices. I am always looking
+for new opportunities to learn and grow as a developer and am excited to see where my career
+takes me.";
 
     let left = Paragraph::new(left_text)
         .block(Block::default().borders(Borders::ALL).title("About"))
         .alignment(Alignment::Left)
+        .wrap(Wrap { trim: false })
         .style(BASE_STYLE);
 
     f.render_widget(left, chunks[0]);
@@ -146,17 +145,9 @@ fn draw_projects(f: &mut Frame, area: Rect, app: &App) {
             .iter()
             .enumerate()
             .map(|(i, repo)| {
-                let desc = repo
-                    .description
-                    .as_deref()
-                    .unwrap_or("No description provided.");
+                let desc = repo.description.as_deref().unwrap_or("No description provided.");
 
-                format!(
-                    "({}) {}\n{}\n",
-                    i + 1,
-                    repo.name,
-                    desc
-                )
+                format!("({}) {}\n{}\n", i + 1, repo.name, desc)
             })
             .collect::<Vec<_>>()
             .join("\n")
@@ -165,14 +156,11 @@ fn draw_projects(f: &mut Frame, area: Rect, app: &App) {
     let body = Paragraph::new(content)
         .block(Block::default().borders(Borders::ALL).title("Projects"))
         .alignment(Alignment::Left)
+        .wrap(Wrap { trim: false })
         .style(BASE_STYLE);
 
     f.render_widget(body, area);
 }
-
-
-
-
 
 /* ---------- FOOTER ---------- */
 
