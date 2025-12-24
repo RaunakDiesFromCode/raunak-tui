@@ -4,15 +4,15 @@ mod github;
 
 use std::io;
 use std::time::Duration;
-use std::sync::{ Arc, Mutex };
+use std::sync::{Arc, Mutex};
 
 use crossterm::{
     execute,
-    event::{ self, Event, KeyCode },
-    terminal::{ enable_raw_mode, disable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen },
+    event::{self, Event, KeyCode, KeyEventKind},
+    terminal::{enable_raw_mode, disable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 
-use ratatui::{ Terminal, backend::CrosstermBackend };
+use ratatui::{Terminal, backend::CrosstermBackend};
 use open;
 
 use app::App;
@@ -70,7 +70,7 @@ async fn main() -> Result<(), io::Error> {
 
 fn run_app<B: ratatui::backend::Backend>(
     terminal: &mut Terminal<B>,
-    app: Arc<Mutex<App>>
+    app: Arc<Mutex<App>>,
 ) -> io::Result<()> {
     loop {
         // ---- quit check ----
@@ -81,7 +81,7 @@ fn run_app<B: ratatui::backend::Backend>(
             }
         }
 
-        // ---- draw UI using snapshot ----
+        // ---- draw UI snapshot ----
         let snapshot = {
             let app = app.lock().unwrap();
             app.clone()
@@ -92,6 +92,12 @@ fn run_app<B: ratatui::backend::Backend>(
         // ---- input handling ----
         if event::poll(Duration::from_millis(50))? {
             if let Event::Key(key) = event::read()? {
+
+                // 🔑 THIS FIXES WINDOWS DOUBLE-OPEN
+                if key.kind != KeyEventKind::Press {
+                    continue;
+                }
+
                 match key.code {
                     KeyCode::Char('q') => {
                         let mut app = app.lock().unwrap();
@@ -133,7 +139,7 @@ fn run_app<B: ratatui::backend::Backend>(
                         let index = c.to_digit(10).unwrap() as usize;
 
                         if index == 0 {
-                            return Ok(()); // ignore 0
+                            continue;
                         }
 
                         let repo_opt = {
